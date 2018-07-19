@@ -1,19 +1,23 @@
 const fs = require('fs')
 const csv = require('csv-parse/lib/sync')
 
-const { Matrix, NeuralNetwork } = require('../lib')
+const {Matrix, NeuralNetwork} = require('../lib')
 
 const bot = new NeuralNetwork({
-  layerSizes: [784, 64, 10],
+  layerSizes: [784, 300, 10],
   batchSize: 1,
-  learningRate: 0.1,
+  learningRate: 0.15,
   testFn: (outputs, targets) => outputs.highest() === targets.highest(),
   trackTrainingSuccess: true
 })
 
 console.log('Loading Data')
-const trainingData = csv(fs.readFileSync('examples/mnist-data/mnist_train_1k.csv')).map(parseLine)
-const testingData = csv(fs.readFileSync('examples/mnist-data/mnist_test_100.csv')).map(parseLine)
+const trainingData = csv(
+  fs.readFileSync('examples/mnist-data/mnist_train_5k.csv')
+).map(parseLine)
+const testingData = csv(
+  fs.readFileSync('examples/mnist-data/mnist_test_100.csv')
+).map(parseLine)
 
 for (let epoch = 0; epoch < 30; epoch++) {
   console.log('Starting Training - Epoch ' + epoch)
@@ -34,7 +38,10 @@ console.log('Complete!')
 function parseLine (line) {
   const answer = new Array(10).fill(0)
   answer[+line[0]] = 1
-  return { inputs: Matrix.fromArray(line.slice(1)), targets: Matrix.fromArray(answer) }
+  return {
+    inputs: Matrix.fromArray(line.slice(1)),
+    targets: Matrix.fromArray(answer)
+  }
 }
 
 function train () {
